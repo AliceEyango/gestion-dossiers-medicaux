@@ -1,39 +1,104 @@
+/* Général */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f7fafd;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
+    background-color: #f4f6f9;
+}
+
+/* En-tête */
+h1 {
+    background-color: #2563eb;
+    color: white;
     padding: 20px;
+    margin: 0;
+    font-size: 24px;
 }
 
-h1, h2 {
-    color: #2c3e50;
+h2 {
+    margin: 20px 0 10px;
+    font-size: 20px;
+    color: #1f2937;
 }
 
-a {
-    display: inline-block;
-    margin-bottom: 20px;
+/* Boutons */
+a.button {
+    background-color: #10b981;
+    color: white;
+    padding: 10px 16px;
     text-decoration: none;
-    color: #3498db;
+    border-radius: 6px;
     font-weight: bold;
 }
 
+a.button:hover {
+    background-color: #059669;
+}
+
+/* Tableau */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    background-color: white;
+    margin-bottom: 30px;
 }
 
-th, td {
-    border: 1px solid #ccc;
-    padding: 10px;
+table th, table td {
+    border: 1px solid #e5e7eb;
+    padding: 12px;
     text-align: left;
 }
 
-th {
-    background-color: #3498db;
-    color: white;
+table th {
+    background-color: #eff6ff;
+    color: #1d4ed8;
 }
 
-tr:nth-child(even) {
-    background-color: #f2f2f2;
+table tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Barre de recherche */
+#search {
+    margin: 10px 0 20px;
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+}
+
+/* Barre latérale (si utilisée sans Tailwind) */
+.sidebar {
+    width: 220px;
+    background-color: white;
+    padding: 20px;
+    height: 100vh;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h1 {
+    font-size: 22px;
+    color: #3b82f6;
+    margin-bottom: 20px;
+}
+
+.sidebar nav a {
+    display: block;
+    color: #374151;
+    padding: 10px 0;
+    text-decoration: none;
+}
+
+.sidebar nav a:hover {
+    color: #2563eb;
+}
+
+/* Actions (modifier, supprimer, pdf) */
+.action-icons a {
+    margin: 0 5px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.action-icons a:hover {
+    opacity: 0.7;
 }
