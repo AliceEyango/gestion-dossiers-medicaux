@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config/config.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 session_start();
@@ -7,6 +8,10 @@ if (!isset($_SESSION['user'])) {
     header('Location: index.php');
     exit;
 }
+
+
+$cle = $_SESSION['cle_dechiffrement'] ?? null;
+$message = '';
 
 require_once __DIR__ . '/../src/Patient.php';
 $patientModel = new Patient();
@@ -40,8 +45,18 @@ if (!$patient) {
     $message = "Patient introuvable.";
 }
 
+if ($cle !== ENCRYPTION_KEY) {
+    echo "<p style='color:red;'>Clé incorrecte. Vous ne pouvez pas modifier les données.</p>";
+    exit;
+}
+
+unset($_SESSION['cle_dechiffrement']);
+
 // Traitement du formulaire
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
     $nom = $_POST['nom'] ?? '';
     $prenom = $_POST['prenom'] ?? '';
     $date_naissance = $_POST['date_naissance'] ?? '';
@@ -86,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $message = "Erreur lors de la mise à jour.";
     }
-}
+} 
 ?>
 
 <!DOCTYPE html>
