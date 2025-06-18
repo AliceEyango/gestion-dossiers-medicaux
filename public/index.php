@@ -1,10 +1,9 @@
 <?php
 session_start();
 
-if (isset($_SESSION['user'])) {
-    header('Location: dashboard.php');
-    exit;
-}
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../src/Database.php';
+
 
 $message = '';
 
@@ -12,18 +11,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    if ($username === 'admin' && $password === 'adminpass') {
-        $_SESSION['user'] = $username;
-        $_SESSION['role'] = 'admin';
-        header('Location: dashboard.php');
-        exit;
-    } elseif ($username === 'user' && $password === 'userpass') {
-        $_SESSION['user'] = $username;
-        $_SESSION['role'] = 'user';
-        header('Location: dashboard.php');
-        exit;
-    } else {
-        $message = "Identifiants incorrects";
+    try {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->prepare("SELECT username, password FROM connexion WHERE username = ?");
+        $stmt->execute([$username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user'] = $user['username'];
+            $_SESSION['role'] = 'admin';
+            header('Location: dashboard.php');
+            exit;
+        } else {
+            $message = "Identifiants incorrects";
+        }
+    } catch (PDOException $e) {
+        $message = "Erreur serveur, veuillez réessayer plus tard.";
     }
 }
 ?>
