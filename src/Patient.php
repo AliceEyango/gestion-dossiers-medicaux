@@ -20,14 +20,14 @@ class Patient {
     
     $decoded = base64_decode($data, true);
     if ($decoded === false || strlen($decoded) < 17) {
-        return '⚠️ Donnée corrompue';
+        return 'Donnée corrompue';
     }
 
     $iv = substr($decoded, 0, 16);
     $encrypted = substr($decoded, 16);
 
     $decrypted = openssl_decrypt($encrypted, 'aes-256-cbc', ENCRYPTION_KEY, 0, $iv);
-    return $decrypted !== false ? $decrypted : '⚠️ Erreur déchiffrement';
+    return $decrypted !== false ? $decrypted : 'Erreur déchiffrement';
 }
 
 
@@ -73,6 +73,79 @@ public function getPatientByIdRaw($id) {
     $stmt = $this->pdo->prepare("SELECT * FROM patients WHERE id = :id");
     $stmt->execute([':id' => $id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
+
+// Chiffrement avec GPG
+public function gpgEncrypt($data, $publicKeyPath) {
+    putenv("GNUPGHOME=/tmp");
+    $gpg = new gnupg();
+    $import = $gpg->import(file_get_contents($publicKeyPath));
+    if (!$import || empty($import['fingerprint'])) return "Erreur import clé publique.";
+    $gpg->addencryptkey($import['fingerprint']);
+    return $gpg->encrypt($data);
+}
+
+public function gpgDecrypt($data, $privateKeyPath, $passphrase) {
+    putenv("GNUPGHOME=/tmp");
+    $gpg = new gnupg();
+    $import = $gpg->import(file_get_contents($privateKeyPath));
+    if (!$import || empty($import['fingerprint'])) return "Erreur import clé privée.";
+    $gpg->adddecryptkey($import['fingerprint'], $passphrase);
+    return $gpg->decrypt($data);
+}
+
+ // ===== GPG Chiffrement =====
+    public static function encryptGPG($data) {
+        $input = tempnam(sys_get_temp_dir(), 'gpg_in_');
+        $output = tempnam(sys_get_temp_dir(), 'gpg_out_');
+        file_put_contents($input, $data);
+
+        $cmd = sprintf(
+            'gpg --yes --batch --trust-model always --output %s --encrypt --recipient-file %s %s',
+            escapeshellarg($output),
+            escapeshellarg(GPG_PUBLIC_KEY),
+            escapeshellarg($input)
+        );
+        exec($cmd, $out, $status);
+        if ($status !== 0) return false;
+
+        $encrypted = file_get_contents($output);
+        unlink($input); unlink($output);
+        return base64_encode($encrypted);
+    }
+
+    public static function decryptGPG($data, $passphrase) {
+    $decoded = base64_decode($data);
+    $input = tempnam(sys_get_temp_dir(), 'gpg_in_');
+    $output = tempnam(sys_get_temp_dir(), 'gpg_out_');
+    $passfile = tempnam(sys_get_temp_dir(), 'gpg_pass_');
+
+    file_put_contents($input, $decoded);
+    file_put_contents($passfile, $passphrase);
+
+    putenv("GNUPGHOME=/tmp/.gnupg");
+
+    $cmd = sprintf(
+        'gpg --batch --yes --passphrase-file %s --output %s --decrypt %s 2>&1',
+        escapeshellarg($passfile),
+        escapeshellarg($output),
+        escapeshellarg($input)
+    );
+
+    exec($cmd, $outputLines, $status);
+
+    unlink($input);
+    unlink($passfile);
+
+    if ($status !== 0) {
+        return "⚠️ Erreur déchiffrement GPG\n" . implode("\n", $outputLines);
+    }
+
+    $decrypted = file_get_contents($output);
+    unlink($output);
+    return $decrypted ?: "⚠️ Donnée vide ou corrompue";
 }
 
 

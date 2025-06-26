@@ -88,4 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </body>
-</html>
+</html>                <?php
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+session_start();
+if (!isset($_SESSION['user'])) {
+    header('Location: index.php');
+    exit;
+}

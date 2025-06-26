@@ -1,4 +1,4 @@
-<?php
+  <?php
 require_once __DIR__ . '/../lib/fpdf.php';
 require_once __DIR__ . '/../src/Patient.php';
 require_once __DIR__ . '/../config/config.php';
@@ -61,6 +61,11 @@ addLine($pdf, 'Mutuelle :', $patient['mutuelle']);
 addLine($pdf, 'Contact d\'urgence :', $patient['personne_contact_nom'] . ' (' . $patient['personne_contact_tel'] . ')');
 addLine($pdf, 'Antecedents :', $patient['antecedents_medicaux']);
 
+
+unset($_SESSION['cle_dechiffrement']); // On supprime la clé après usage
+
 $pdf->Output('I', 'fiche_patient.pdf');
 
-unset($_SESSION['cle_dechiffrement']);
+
+exit;
+?> 

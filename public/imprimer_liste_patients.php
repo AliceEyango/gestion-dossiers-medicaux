@@ -64,4 +64,4 @@ unset($_SESSION['cle_dechiffrement']); // On supprime la clé après usage
 
 $pdf->Output('I', 'liste_patients.pdf');
 exit;
-?>
+?> 
