@@ -4,22 +4,25 @@ session_start();
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../src/Database.php';
 
-
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
+    $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
     try {
         $pdo = Database::getConnection();
-        $stmt = $pdo->prepare("SELECT username, password FROM connexion WHERE username = ?");
+        $stmt = $pdo->prepare("SELECT username, password, role FROM connexion WHERE username = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password'])) {
+            // Protection contre session fixation
+            session_regenerate_id(true);
             $_SESSION['user'] = $user['username'];
-            $_SESSION['role'] = 'admin';
+            $_SESSION['role'] = $user['role'] ?? 'admin'; // par défaut admin
+            $_SESSION['LAST_ACTIVITY'] = time();
+
             header('Location: dashboard.php');
             exit;
         } else {
@@ -54,6 +57,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" name="password" placeholder="Mot de passe" required>
                 <button type="submit">Se connecter</button>
             </form>
+
+            <!-- Bouton Ajouter un utilisateur -->
+<div style="margin-top: 20px; text-align: center;">
+    <a href="creer_utilisateur.php" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow text-sm inline-block">
+        ➕ Ajouter un utilisateur
+    </a>
+</div>
+
+
 
             <div class="footer">© 2025 Gestion des Dossiers Médicaux</div>
         </div>
