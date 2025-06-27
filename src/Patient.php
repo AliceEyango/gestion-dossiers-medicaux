@@ -20,7 +20,7 @@ class Patient {
     
     $decoded = base64_decode($data, true);
     if ($decoded === false || strlen($decoded) < 17) {
-        return 'Donnée corrompue';
+        return 'Donnee corrompue';
     }
 
     $iv = substr($decoded, 0, 16);
@@ -34,10 +34,10 @@ class Patient {
   public function getAllPatients() {
     $stmt = $this->pdo->query("
         SELECT 
-            id, nom, prenom, date_naissance,
+            id, nom, prenom, sexe, date_naissance,
             numero_securite_sociale, adresse, telephone,
             email, personne_contact_nom, personne_contact_tel,
-            mutuelle, antecedents_medicaux
+            mutuelle
         FROM patients
     ");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -63,7 +63,6 @@ public function getPatientById($id) {
         $patient['mutuelle'] = $this->decryptData($patient['mutuelle']);
         $patient['personne_contact_nom'] = $this->decryptData($patient['personne_contact_nom']);
         $patient['personne_contact_tel'] = $this->decryptData($patient['personne_contact_tel']);
-        $patient['antecedents_medicaux'] = $this->decryptData($patient['antecedents_medicaux']);
     }
 
     return $patient;
@@ -140,12 +139,12 @@ public function gpgDecrypt($data, $privateKeyPath, $passphrase) {
     unlink($passfile);
 
     if ($status !== 0) {
-        return "⚠️ Erreur déchiffrement GPG\n" . implode("\n", $outputLines);
+        return "Erreur déchiffrement GPG\n" . implode("\n", $outputLines);
     }
 
     $decrypted = file_get_contents($output);
     unlink($output);
-    return $decrypted ?: "⚠️ Donnée vide ou corrompue";
+    return $decrypted ?: "Donnee vide ou corrompue";
 }
 
 

@@ -1,101 +1,115 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+session_start();
 
 if (!isset($_SESSION['user'])) {
     header('Location: index.php');
     exit;
 }
+
 require_once __DIR__ . '/../src/Patient.php';
 require_once __DIR__ . '/../src/DossierMedical.php';
-
-
-ini_set('display_errors', 1); 
-error_reporting(E_ALL);       
-
-
+require_once __DIR__ . '/../config/config.php';
 
 $patientModel = new Patient();
+$dossierModel = new DossierMedical();
 $patients = $patientModel->getAllPatients();
 
+$message = '';
+
+// Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $patient_id = $_POST['patient_id'];
-    $date_consultation = $_POST['date_consultation'];
-    $diagnostic = $_POST['diagnostic'];
-    $traitement = $_POST['traitement'];
-    $commentaire = $_POST['commentaire'];
+    $patient_id = $_POST['patient_id'] ?? '';
+    $date_consultation = $_POST['date_consultation'] ?? '';
+    $diagnostic = $_POST['diagnostic'] ?? '';
+    $traitement = $_POST['traitement'] ?? '';
+    $commentaire = $_POST['commentaire'] ?? '';
 
-    $dossier = new DossierMedical();
-    $dossier->ajouterDossier($patient_id, $date_consultation, $diagnostic, $traitement, $commentaire);
+    // Vérifie la clé de chiffrement en session
+    $key = $_SESSION['cle_dechiffrement'] ?? null;
 
-    header('Location: dashboard.php?page=dossiers');
-    exit;
+    // Traitement du formulaire
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $patient_id = $_POST['patient_id'] ?? '';
+    $date_consultation = $_POST['date_consultation'] ?? '';
+    $diagnostic = $_POST['diagnostic'] ?? '';
+    $traitement = $_POST['traitement'] ?? '';
+    $commentaire = $_POST['commentaire'] ?? '';
+
+    // Insertion
+    $pdo = Database::getConnection();
+    $stmt = $pdo->prepare("INSERT INTO dossier_medical (patient_id, date_consultation, diagnostic, traitement, commentaire) VALUES (?, ?, ?, ?, ?)");
+
+    $ok = $stmt->execute([
+    $patient_id,
+    $date_consultation,
+    $patientModel->encryptData($diagnostic),
+    $patientModel->encryptData($traitement),
+    $patientModel->encryptData($commentaire),
+    ]);
+
+        if ($ok) {
+            header('Location: dashboard.php?page=dossiers');
+            exit;
+        } else {
+            $message = "Erreur lors de l'ajout du dossier médical.";
+        }
+    }
 }
-?>
 
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Ajouter un dossier médical</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center px-4">
+<body class="bg-gray-100 p-8">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+        <h2 class="text-2xl font-semibold mb-4 text-blue-700">Ajouter un dossier médical</h2>
 
-<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
-    <h2 class="text-2xl font-bold text-blue-600 mb-6 text-center">
-        <i class="fas fa-file-medical-alt mr-2"></i>Ajouter un dossier médical
-    </h2>
+        <?php if ($message): ?>
+            <p class="text-red-600 mb-4"><?= htmlspecialchars($message) ?></p>
+        <?php endif; ?>
 
-    <form method="post" class="space-y-6">
-        <!-- Patient -->
-        <div>
-            <label for="patient_id" class="block text-gray-700 font-medium mb-1">Patient :</label>
-            <select id="patient_id" name="patient_id" required class="w-full border border-gray-300 rounded p-2 shadow-sm">
-                <option value="">-- Sélectionner un patient --</option>
-                <?php foreach ($patients as $p): ?>
-                    <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['nom'] . ' ' . $p['prenom']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+        <form method="post" class="grid grid-cols-2 gap-4">
+            <div class="col-span-2">
+                <label for="patient_id" class="block text-gray-700 mb-1">Patient :</label>
+                <select name="patient_id" id="patient_id" required class="border p-2 rounded w-full">
+                    <option value="">-- Sélectionner --</option>
+                    <?php foreach ($patients as $p): ?>
+                        <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['nom'] . ' ' . $p['prenom']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-        <!-- Date de consultation -->
-        <div>
-            <label for="date_consultation" class="block text-gray-700 font-medium mb-1">Date de consultation :</label>
-            <input type="date" id="date_consultation" name="date_consultation" required class="w-full border border-gray-300 rounded p-2 shadow-sm">
-        </div>
+            <div class="col-span-2">
+                <label for="date_consultation" class="block text-gray-700 mb-1">Date de consultation :</label>
+                <input type="date" name="date_consultation" id="date_consultation" required class="border p-2 rounded w-full">
+            </div>
 
-        <!-- Diagnostic -->
-        <div>
-            <label for="diagnostic" class="block text-gray-700 font-medium mb-1">Diagnostic :</label>
-            <textarea id="diagnostic" name="diagnostic" rows="3" required class="w-full border border-gray-300 rounded p-2 shadow-sm"></textarea>
-        </div>
+            <div class="col-span-2">
+                <label for="diagnostic" class="block text-gray-700 mb-1">Diagnostic :</label>
+                <textarea name="diagnostic" id="diagnostic" rows="3" required class="border p-2 rounded w-full"></textarea>
+            </div>
 
-        <!-- Traitement -->
-        <div>
-            <label for="traitement" class="block text-gray-700 font-medium mb-1">Traitement :</label>
-            <textarea id="traitement" name="traitement" rows="3" required class="w-full border border-gray-300 rounded p-2 shadow-sm"></textarea>
-        </div>
+            <div class="col-span-2">
+                <label for="traitement" class="block text-gray-700 mb-1">Traitement :</label>
+                <textarea name="traitement" id="traitement" rows="3" required class="border p-2 rounded w-full"></textarea>
+            </div>
 
-        <!-- Commentaire -->
-        <div>
-            <label for="commentaire" class="block text-gray-700 font-medium mb-1">Commentaire :</label>
-            <textarea id="commentaire" name="commentaire" rows="2" class="w-full border border-gray-300 rounded p-2 shadow-sm"></textarea>
-        </div>
+            <div class="col-span-2">
+                <label for="commentaire" class="block text-gray-700 mb-1">Commentaire :</label>
+                <textarea name="commentaire" id="commentaire" rows="2" class="border p-2 rounded w-full"></textarea>
+            </div>
 
-        <!-- Boutons -->
-        <div class="flex justify-between mt-6">
-            <a href="dashboard.php?page=dossiers" class="text-gray-600 hover:text-blue-600 flex items-center">
-                <i class="fas fa-arrow-left mr-2"></i>Retour
-            </a>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">
-                <i class="fas fa-save mr-2"></i>Enregistrer
-            </button>
-        </div>
-    </form>
-</div>
-
+            <div class="col-span-2 flex justify-between mt-4">
+                <a href="dashboard.php?page=dossiers" class="text-blue-600 hover:underline">← Retour</a>
+                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Ajouter</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
