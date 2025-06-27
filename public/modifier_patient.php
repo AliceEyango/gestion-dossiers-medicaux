@@ -21,6 +21,7 @@ $patient = [
     'id' => '',
     'nom' => '',
     'prenom' => '',
+    'sexe' => '',
     'date_naissance' => '',
     'adresse' => '',
     'telephone' => '',
@@ -28,8 +29,7 @@ $patient = [
     'numero_securite_sociale' => '',
     'mutuelle' => '',
     'personne_contact_nom' => '',
-    'personne_contact_tel' => '',
-    'antecedents_medicaux' => ''
+    'personne_contact_tel' => ''
 ];
 
 // Vérifie si un ID a été passé
@@ -45,10 +45,7 @@ if (!$patient) {
     $message = "Patient introuvable.";
 }
 
-if ($cle !== ENCRYPTION_KEY) {
-    echo "<p style='color:red;'>Clé incorrecte. Vous ne pouvez pas modifier les données.</p>";
-    exit;
-}
+
 
 unset($_SESSION['cle_dechiffrement']);
 
@@ -59,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $nom = $_POST['nom'] ?? '';
     $prenom = $_POST['prenom'] ?? '';
+    $sexe = $_POST['sexe'] ?? '';
     $date_naissance = $_POST['date_naissance'] ?? '';
     $adresse = $_POST['adresse'] ?? '';
     $telephone = $_POST['telephone'] ?? '';
@@ -67,22 +65,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mutuelle = $_POST['mutuelle'] ?? '';
     $contact_nom = $_POST['contact_nom'] ?? '';
     $contact_tel = $_POST['contact_tel'] ?? '';
-    $antecedents = $_POST['antecedents'] ?? '';
+    
 
     $pdo = Database::getConnection();
     $stmt = $pdo->prepare("
         UPDATE patients SET 
-            nom = ?, prenom = ?, date_naissance = ?,
+            nom = ?, prenom = ?, sexe = ?, date_naissance = ?,
             adresse = ?, telephone = ?, email = ?, 
             numero_securite_sociale = ?, mutuelle = ?, 
-            personne_contact_nom = ?, personne_contact_tel = ?, 
-            antecedents_medicaux = ?
+            personne_contact_nom = ?, personne_contact_tel = ?
         WHERE id = ?
     ");
 
     $ok = $stmt->execute([
         $nom,
         $prenom,
+        $sexe,
         $date_naissance,
         $patientModel->encryptData($adresse),
         $patientModel->encryptData($telephone),
@@ -91,7 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $patientModel->encryptData($mutuelle),
         $patientModel->encryptData($contact_nom),
         $patientModel->encryptData($contact_tel),
-        $patientModel->encryptData($antecedents),
         $id
     ]);
 
@@ -122,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="post" class="grid grid-cols-2 gap-4">
         <input type="text" name="nom" value="<?= htmlspecialchars($patient['nom']) ?>" required class="border p-2 rounded">
         <input type="text" name="prenom" value="<?= htmlspecialchars($patient['prenom']) ?>" required class="border p-2 rounded">
+        <input type="text" name="sexe" value="<?= htmlspecialchars($patient['sexe']) ?>" required class="border p-2 rounded">
         <input type="date" name="date_naissance" value="<?= htmlspecialchars($patient['date_naissance']) ?>" required class="border p-2 rounded col-span-2">
         <input type="text" name="adresse" value="<?= htmlspecialchars($patient['adresse']) ?>" class="border p-2 rounded col-span-2">
         <input type="text" name="telephone" value="<?= htmlspecialchars($patient['telephone']) ?>" class="border p-2 rounded">
@@ -130,7 +128,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="text" name="mutuelle" value="<?= htmlspecialchars($patient['mutuelle']) ?>" class="border p-2 rounded col-span-2">
         <input type="text" name="contact_nom" value="<?= htmlspecialchars($patient['personne_contact_nom']) ?>" class="border p-2 rounded">
         <input type="text" name="contact_tel" value="<?= htmlspecialchars($patient['personne_contact_tel']) ?>" class="border p-2 rounded">
-        <textarea name="antecedents" rows="3" class="border p-2 rounded col-span-2"><?= htmlspecialchars($patient['antecedents_medicaux']) ?></textarea>
 
         <div class="col-span-2 flex justify-between mt-4">
             <a href="dashboard.php?page=patients" class="text-blue-600 hover:underline">← Retour</a>

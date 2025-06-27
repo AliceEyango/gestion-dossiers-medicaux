@@ -33,7 +33,6 @@ if ($isDecrypted) {
     $patient['mutuelle'] = $patientModel->decryptData($patient['mutuelle']);
     $patient['personne_contact_nom'] = $patientModel->decryptData($patient['personne_contact_nom']);
     $patient['personne_contact_tel'] = $patientModel->decryptData($patient['personne_contact_tel']);
-    $patient['antecedents_medicaux'] = $patientModel->decryptData($patient['antecedents_medicaux']);
 }
 
 $pdf = new FPDF();
@@ -52,6 +51,7 @@ function addLine($pdf, $label, $value) {
 
 addLine($pdf, 'Nom :', $patient['nom']);
 addLine($pdf, 'Prenom :', $patient['prenom']);
+addLine($pdf, 'sexe :', $patient['sexe']);
 addLine($pdf, 'Date de naissance :', $patient['date_naissance']);
 addLine($pdf, 'Adresse :', $patient['adresse']);
 addLine($pdf, 'Telephone :', $patient['telephone']);
@@ -59,7 +59,6 @@ addLine($pdf, 'Email :', $patient['email']);
 addLine($pdf, 'N Securite Sociale :', $patient['numero_securite_sociale']);
 addLine($pdf, 'Mutuelle :', $patient['mutuelle']);
 addLine($pdf, 'Contact d\'urgence :', $patient['personne_contact_nom'] . ' (' . $patient['personne_contact_tel'] . ')');
-addLine($pdf, 'Antecedents :', $patient['antecedents_medicaux']);
 
 
 unset($_SESSION['cle_dechiffrement']); // On supprime la clé après usage

@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date_naissance = $_POST['date_naissance'] ?? '';
     $adresse = $_POST['adresse'] ?? '';
     $telephone = $_POST['telephone'] ?? '';
+    $sexe = $_POST['sexe'] ?? '';
     $email = $_POST['email'] ?? '';
     $numero_ss = $_POST['numero_ss'] ?? '';
     $mutuelle = $_POST['mutuelle'] ?? '';
@@ -28,11 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Insertion
     $pdo = Database::getConnection();
-    $stmt = $pdo->prepare("INSERT INTO patients (nom, prenom, date_naissance, adresse, telephone, email, numero_securite_sociale, mutuelle, personne_contact_nom, personne_contact_tel, antecedents_medicaux) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO patients (nom, prenom, sexe, date_naissance, adresse, telephone, email, numero_securite_sociale, mutuelle, personne_contact_nom, personne_contact_tel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     $ok = $stmt->execute([
         $nom,
         $prenom,
+        $sexe,
         $date_naissance,
         $patientModel->encryptData($adresse),
         $patientModel->encryptData($telephone),
@@ -41,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $patientModel->encryptData($mutuelle),
         $patientModel->encryptData($contact_nom),
         $patientModel->encryptData($contact_tel),
-        $patientModel->encryptData($antecedents),
     ]);
 
     if ($ok) {
@@ -71,6 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="post" class="grid grid-cols-2 gap-4">
             <input type="text" name="nom" placeholder="Nom" required class="border p-2 rounded">
             <input type="text" name="prenom" placeholder="Prénom" required class="border p-2 rounded">
+            <select name="sexe" required class="border p-2 rounded">
+                <option value="">Sélectionnez le sexe</option>
+                <option value="Homme">Homme</option>
+                <option value="Femme">Femme</option>
+                <option value="Autre">Autre</option>
+            </select>
             <input type="date" name="date_naissance" required class="border p-2 rounded col-span-2">
             <input type="text" name="adresse" placeholder="Adresse" required class="border p-2 rounded col-span-2">
             <input type="text" name="telephone" placeholder="Téléphone" required class="border p-2 rounded">
@@ -79,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" name="mutuelle" placeholder="Mutuelle" class="border p-2 rounded col-span-2">
             <input type="text" name="contact_nom" placeholder="Nom personne à contacter" class="border p-2 rounded">
             <input type="text" name="contact_tel" placeholder="Téléphone contact" class="border p-2 rounded">
-            <textarea name="antecedents" placeholder="Antécédents médicaux" rows="3" class="border p-2 rounded col-span-2"></textarea>
 
             <div class="col-span-2 flex justify-between mt-4">
                 <a href="dashboard.php?page=patients" class="text-blue-600 hover:underline">← Retour</a>

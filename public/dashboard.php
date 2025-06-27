@@ -81,6 +81,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
             <select id="sortSelect" class="p-2 border rounded shadow-sm">
                 <option value="nom">Nom</option>
                 <option value="prenom">Prénom</option>
+                <option value="sexe">Sexe</option>
                 <option value="date_naissance">Date de naissance</option>
             </select>
         </div>
@@ -92,6 +93,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
                 <tr>
                     <th class="p-2">Nom</th>
                     <th class="p-2">Prénom</th>
+                    <th class="p-2">Sexe</th>
                     <th class="p-2">Date naissance</th>
                     <th class="p-2">Adresse</th>
                     <th class="p-2">Téléphone</th>
@@ -105,6 +107,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
                         <tr class="border-b hover:bg-gray-50">
                             <td class="p-2"><?= htmlspecialchars($p['nom']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($p['prenom']) ?></td>
+                             <td class="p-2"><?= htmlspecialchars($p['sexe']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($p['date_naissance']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($p['adresse']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($p['telephone']) ?></td>
@@ -162,7 +165,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
                         <td class="p-2"><?= htmlspecialchars($d['created_at']) ?></td>
                         <td class="p-2 text-center space-x-2">
                 <?php if ($isAdmin): ?>
-                    <a href="modifier_dossier.php?id=<?= $d['id'] ?>" class="text-yellow-500 hover:text-yellow-600">
+                    <a href="formdossiermodif.php?id=<?= $d['id'] ?>" class="text-yellow-500 hover:text-yellow-600">
     <i class="fas fa-edit"></i>
 </a>
 
@@ -170,7 +173,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
                         <i class="fas fa-trash-alt"></i>
                     </a>
                  <?php endif; ?>
-                   <a href="imprimer_dossier.php?id=<?= $d['id'] ?>" class="text-blue-500 hover:text-blue-600" title="Imprimer" target="_blank">
+                   <a href="formimpdossier.php?id=<?= $d['id'] ?>" class="text-blue-500 hover:text-blue-600" title="Imprimer" target="_blank">
                    <i class="fas fa-print"></i>
                    </a>
             </td>

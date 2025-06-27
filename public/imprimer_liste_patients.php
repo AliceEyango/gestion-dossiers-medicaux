@@ -24,6 +24,7 @@ $pdf->SetFont('Arial', 'B', 12);
 $headers = [
     'Nom' => 30,
     'Prénom' => 30,
+    'sexe' => 30,
     'Date Naissance' => 25,
     'Adresse' => 50,
     'Téléphone' => 30,
@@ -52,6 +53,7 @@ foreach ($patients as $p) {
 
     $pdf->Cell($headers['Nom'], 10, utf8_decode($p['nom']), 1);
     $pdf->Cell($headers['Prénom'], 10, utf8_decode($p['prenom']), 1);
+    $pdf->Cell($headers['sexe'], 10, utf8_decode($p['sexe']), 1);
     $pdf->Cell($headers['Date Naissance'], 10, utf8_decode($p['date_naissance']), 1);
     $pdf->Cell($headers['Adresse'], 10, utf8_decode($adresse), 1);
     $pdf->Cell($headers['Téléphone'], 10, utf8_decode($telephone), 1);
