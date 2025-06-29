@@ -81,7 +81,6 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
             <select id="sortSelect" class="p-2 border rounded shadow-sm">
                 <option value="nom">Nom</option>
                 <option value="prenom">Prénom</option>
-                <option value="sexe">Sexe</option>
                 <option value="date_naissance">Date de naissance</option>
             </select>
         </div>
@@ -141,7 +140,6 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
         <table class="w-full text-sm text-left table-auto">
             <thead class="bg-blue-100 text-gray-800">
                 <tr>
-                    <th class="p-2">ID</th>
                     <th class="p-2">Nom</th>
                     <th class="p-2">Prénom</th>
                     <th class="p-2">Date consultation</th>
@@ -155,7 +153,6 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
             <tbody>
                 <?php foreach ($dossiers as $d): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="p-2"><?= htmlspecialchars($d['id']) ?></td>
                         <td class="p-2"><?= htmlspecialchars($d['nom']) ?></td>
                         <td class="p-2"><?= htmlspecialchars($d['prenom']) ?></td>
                         <td class="p-2"><?= htmlspecialchars($d['date_consultation']) ?></td>
