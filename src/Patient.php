@@ -96,5 +96,4 @@ public function gpgDecrypt($data, $privateKeyPath, $passphrase) {
 }
 
 
-
 }
