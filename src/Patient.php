@@ -95,57 +95,6 @@ public function gpgDecrypt($data, $privateKeyPath, $passphrase) {
     return $gpg->decrypt($data);
 }
 
- // ===== GPG Chiffrement =====
-    public static function encryptGPG($data) {
-        $input = tempnam(sys_get_temp_dir(), 'gpg_in_');
-        $output = tempnam(sys_get_temp_dir(), 'gpg_out_');
-        file_put_contents($input, $data);
-
-        $cmd = sprintf(
-            'gpg --yes --batch --trust-model always --output %s --encrypt --recipient-file %s %s',
-            escapeshellarg($output),
-            escapeshellarg(GPG_PUBLIC_KEY),
-            escapeshellarg($input)
-        );
-        exec($cmd, $out, $status);
-        if ($status !== 0) return false;
-
-        $encrypted = file_get_contents($output);
-        unlink($input); unlink($output);
-        return base64_encode($encrypted);
-    }
-
-    public static function decryptGPG($data, $passphrase) {
-    $decoded = base64_decode($data);
-    $input = tempnam(sys_get_temp_dir(), 'gpg_in_');
-    $output = tempnam(sys_get_temp_dir(), 'gpg_out_');
-    $passfile = tempnam(sys_get_temp_dir(), 'gpg_pass_');
-
-    file_put_contents($input, $decoded);
-    file_put_contents($passfile, $passphrase);
-
-    putenv("GNUPGHOME=/tmp/.gnupg");
-
-    $cmd = sprintf(
-        'gpg --batch --yes --passphrase-file %s --output %s --decrypt %s 2>&1',
-        escapeshellarg($passfile),
-        escapeshellarg($output),
-        escapeshellarg($input)
-    );
-
-    exec($cmd, $outputLines, $status);
-
-    unlink($input);
-    unlink($passfile);
-
-    if ($status !== 0) {
-        return "Erreur déchiffrement GPG\n" . implode("\n", $outputLines);
-    }
-
-    $decrypted = file_get_contents($output);
-    unlink($output);
-    return $decrypted ?: "Donnee vide ou corrompue";
-}
 
 
 }
